@@ -41,7 +41,10 @@ class ForegroundFragment : Fragment() {
 
                 "start" -> {
                     job = GlobalScope.launch(Dispatchers.IO){
-                        countPi().collect {}
+                        withContext(Dispatchers.Main){
+                            countPi().collect {sum -> textPi.text = sum}
+                        }
+
                     }
 
                 }
@@ -65,7 +68,6 @@ class ForegroundFragment : Fragment() {
     }
 
     private fun countPi() = flow {
-        emit(0)
 
         while(job.isActive){
 
@@ -76,9 +78,8 @@ class ForegroundFragment : Fragment() {
             }
 
             if (k % 1000 == 0.0) {
-                withContext(Dispatchers.Main){
-                    textPi.text = sum.toString()
-                }
+                delay(1)
+                emit(sum.toString())
             }
 
             k += 1.0
